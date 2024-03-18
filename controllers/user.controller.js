@@ -2,6 +2,7 @@ const UserModel = require('../models/user.model');
 const requestIp = require('request-ip');
 const { validationResult } = require('express-validator');
 const CryptoJS = require("crypto-js");
+const {API_KEY, ADDRESS, CONTRACT_ABI} = require('../constants.js');
 
 exports.getUserProfile = async (req, res) => {
     console.log("in getUserProfile");
@@ -814,7 +815,25 @@ exports.updateiskyc = async (req, res) => {
   }
 }
 
+exports.GetTokenBalance = async (req, res) => {
+    try {
+        let provider = new ethers.providers.JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/${API_KEY}`);
+        
+        let contract = new ethers.Contract(ADDRESS, CONTRACT_ABI, provider);
 
+        const userAddress = req.params.userAddress;
+        const balance = await contract.getBalance(userAddress);
+        res.send({ 
+            success: true,
+            balance: balance.toString() 
+        });
+    } catch (error) {
+        res.send({
+            success: false,
+            msg: error
+        })
+    }
+}
 
 exports.ExchangeTransferICO = async (req, res) => {
     try {
